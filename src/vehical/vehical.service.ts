@@ -36,7 +36,7 @@ export class vehicalService{
     }
 
     async getSinglevehical(ID: string){
-        const vehical = await this.findvehicalbyID(ID);
+        const vehical = await this.findvehical(ID);
         return {id: vehical.id, vehicalID: vehical.vehicalID, triplog: vehical.triplog, misc: vehical.misc, GasBal: vehical.GasBal, Miles: vehical.Miles};
     }
     async getbyVehicalID(vehicalID: string){
@@ -67,8 +67,8 @@ export class vehicalService{
 
 
     async deletevehical(ID: string){
-        const result = await this.vehicalModel.deleteOne({_id: ID}).exec;
-        if (result.length ===0){
+        const result = await this.vehicalModel.deleteOne({_id: ID}).exec();
+        if (result.deletedCount ===0){
             throw new NotFoundException('could not find');
         }
     }
