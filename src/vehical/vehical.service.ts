@@ -2,6 +2,7 @@ import {Injectable, NotFoundException} from '@nestjs/common';
 import { vehical } from './vehical.model';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import {log } from '../log/log.model'
 
 
 
@@ -9,7 +10,7 @@ import { Model } from 'mongoose';
 export class vehicalService{
     
  
-    constructor(@InjectModel('vehical') private readonly vehicalModel: Model<vehical>) {}
+    constructor(@InjectModel('vehical') private readonly vehicalModel: Model<vehical>,@InjectModel('log') private readonly logModel: Model<log>) {}
 
 
     async insertvehical(vehicalID: string, triplog: string, misc: string, GasBal: number, Miles: number ){
@@ -106,9 +107,28 @@ export class vehicalService{
         }
         return vehical;
     }
+    async addtrip(vehicalID: string, tripID: string,){
+        const updateduser = await this.findvehicalbyID(vehicalID);
+        updateduser.triplog += ":"+ tripID;
+        updateduser.GasBal += (await this.findlog(tripID)).deltagas;
+        updateduser.Miles = (await this.findlog(tripID)).deltaM;
+       
+        updateduser.save();
+    }
 
     
-
+    private async findlog(id: string): Promise<log>{
+        let log;
+        try{
+        log = await this.logModel.findById(id).exec();
+        } catch(error){
+            throw new NotFoundException('could not find');
+        }
+        if (!log){
+            throw new NotFoundException('could not find');
+        }
+        return log;
+    }
     
 
 }

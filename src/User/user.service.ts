@@ -4,13 +4,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 import {log } from '../log/log.model'
+import {logService } from '../log/log.service'
 
 
 @Injectable()
 export class userService{
     
  
-    constructor(@InjectModel('user') private readonly userModel: Model<user>, @InjectModel('user') private readonly logModel: Model<log> ) {}
+    constructor(@InjectModel('user') private readonly userModel: Model<user>, @InjectModel('log') private readonly logModel: Model<log>) {}
 
 
     async insertuser(userID: string, triplog: string, misc: string, GasBal: number, Miles: number ){
@@ -36,12 +37,21 @@ export class userService{
     }
 
     async getSingleuser(ID: string){
-        const user = await this.finduserbyID(ID);
+        const user = await this.finduser(ID);
         return {id: user.id, userID: user.userID, triplog: user.triplog, misc: user.misc, GasBal: user.GasBal, Miles: user.Miles};
     }
     async getbyUserID(userID: string){
         const user = await this.finduserbyID(userID);
         return {id: user.id, userID: user.userID, triplog: user.triplog, misc: user.misc, GasBal: user.GasBal, Miles: user.Miles};
+    }
+
+    async addtrip(userID: string, tripID: string,){
+        const updateduser = await this.finduserbyID(userID);
+        updateduser.triplog += ":"+ tripID;
+        updateduser.GasBal += (await this.findlog(tripID)).deltagas;
+        updateduser.Miles += (await this.findlog(tripID)).deltaM;
+       
+        updateduser.save();
     }
 
     async updateuser(ID: string, userID: string, triplog: string, misc: string, GasBal: number, Miles: number){
@@ -67,8 +77,8 @@ export class userService{
 
 
     async deleteuser(ID: string){
-        const result = await this.userModel.deleteOne({_id: ID}).exec;
-        if (result.length ===0){
+        const result = await this.userModel.deleteOne({_id: ID}).exec();
+        if (result.deletedCount ===0){
             throw new NotFoundException('could not find');
         }
     }
@@ -109,6 +119,18 @@ export class userService{
     }
 
     
+    private async findlog(id: string): Promise<log>{
+        let log;
+        try{
+        log = await this.logModel.findById(id).exec();
+        } catch(error){
+            throw new NotFoundException('could not find');
+        }
+        if (!log){
+            throw new NotFoundException('could not find');
+        }
+        return log;
+    }
 
     
 

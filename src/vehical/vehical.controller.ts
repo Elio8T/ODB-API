@@ -25,7 +25,7 @@ export class vehicalsController {
         
 
     }
-    @Get('vehical/:vehicalid')
+    @Get('id/:vehicalid')
     getvehicalbyid(@Param('vehicalid') vehicalid: string){
         return this.vehicalsService.getbyVehicalID(vehicalid);
     }
@@ -34,6 +34,10 @@ export class vehicalsController {
         await this.vehicalsService.updatevehical(id, vehicalID, vehicaltriplog, vehicalgenre, vehicalGasBal, vehicalMiles);
         return null;
     }   
+    @Patch(':id/:logid')
+    async addtrip(@Param('id') vehicalid: string, @Param('logid') logid: string){
+        await this.vehicalsService.addtrip(vehicalid,logid);
+    }
     @Delete(':id')
     async removevehical(@Param('id') id: string,){
         await this.vehicalsService.deletevehical(id);

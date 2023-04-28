@@ -25,7 +25,7 @@ export class usersController {
         
 
     }
-    @Get('user/:userid')
+    @Get('id/:userid')
     getuserbyid(@Param('userid') userid: string){
         return this.usersService.getbyUserID(userid);
     }
@@ -33,7 +33,12 @@ export class usersController {
     async updateuser(@Param('id') id: string, @Body('userID') userID: string, @Body('userIDription') usertriplog: string, @Body('misc') usergenre: string, @Body('GasBal') userGasBal: number, @Body('Miles') userMiles: number){
         await this.usersService.updateuser(id, userID, usertriplog, usergenre, userGasBal, userMiles);
         return null;
-    }   
+    }
+    @Patch(':userid/:logid')
+    async addtrip(@Param('userid') userid: string, @Param('logid') logid: string){
+        await this.usersService.addtrip(userid,logid);
+    }
+
     @Delete(':id')
     async removeuser(@Param('id') id: string,){
         await this.usersService.deleteuser(id);
